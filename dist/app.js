@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-require("babel-polyfill");
+
 var _express = require("express");
 
 var _express2 = _interopRequireDefault(_express);
@@ -23,6 +23,8 @@ var _connect2 = _interopRequireDefault(_connect);
 var _ToDoModel = require("./DB/ToDoModel");
 
 var _ToDoModel2 = _interopRequireDefault(_ToDoModel);
+
+require("babel-polyfill");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
