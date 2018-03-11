@@ -28,6 +28,10 @@ var _EventModel = require("./DB/EventModel");
 
 var _EventModel2 = _interopRequireDefault(_EventModel);
 
+var _cors = require("cors");
+
+var _cors2 = _interopRequireDefault(_cors);
+
 require("babel-polyfill");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -36,6 +40,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 var app = (0, _express2.default)();
 
+app.use((0, _cors2.default)());
 app.use(_bodyParser2.default.urlencoded());
 app.use(_bodyParser2.default.json());
 
