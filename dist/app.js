@@ -24,6 +24,10 @@ var _ToDoModel = require("./DB/ToDoModel");
 
 var _ToDoModel2 = _interopRequireDefault(_ToDoModel);
 
+var _EventModel = require("./DB/EventModel");
+
+var _EventModel2 = _interopRequireDefault(_EventModel);
+
 require("babel-polyfill");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -246,6 +250,104 @@ app.post("/updateTask", function () {
 
     return function (_x5, _x6) {
         return _ref3.apply(this, arguments);
+    };
+}());
+
+app.post('/addEvent', function () {
+    var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(req, res) {
+        var events, userId, categoryId, event, Add;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+            while (1) {
+                switch (_context4.prev = _context4.next) {
+                    case 0:
+                        events = req.body.event;
+                        userId = req.body.userId;
+                        categoryId = req.body.categoryId;
+                        event = { event: events, category: categoryId };
+                        _context4.prev = 4;
+                        _context4.next = 7;
+                        return _EventModel2.default.create({ event: event, userId: userId });
+
+                    case 7:
+                        Add = _context4.sent;
+
+                        res.status(200).json({
+                            success: true,
+                            data: Add
+                        });
+                        _context4.next = 14;
+                        break;
+
+                    case 11:
+                        _context4.prev = 11;
+                        _context4.t0 = _context4["catch"](4);
+
+                        res.status(400).json({
+                            success: false,
+                            error: _context4.t0
+                        });
+
+                    case 14:
+                    case "end":
+                        return _context4.stop();
+                }
+            }
+        }, _callee4, undefined, [[4, 11]]);
+    }));
+
+    return function (_x7, _x8) {
+        return _ref4.apply(this, arguments);
+    };
+}());
+
+app.post('/getEvents', function () {
+    var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(req, res) {
+        var Get;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+            while (1) {
+                switch (_context5.prev = _context5.next) {
+                    case 0:
+                        _context5.prev = 0;
+                        _context5.next = 3;
+                        return _EventModel2.default.find({ userId: req.body.userId });
+
+                    case 3:
+                        Get = _context5.sent;
+
+                        if (Get) {
+                            _context5.next = 6;
+                            break;
+                        }
+
+                        throw new Error("No events found");
+
+                    case 6:
+                        res.status(200).json({
+                            success: true,
+                            data: Get
+                        });
+                        _context5.next = 12;
+                        break;
+
+                    case 9:
+                        _context5.prev = 9;
+                        _context5.t0 = _context5["catch"](0);
+
+                        res.status(400).json({
+                            success: false,
+                            error: _context5.t0
+                        });
+
+                    case 12:
+                    case "end":
+                        return _context5.stop();
+                }
+            }
+        }, _callee5, undefined, [[0, 9]]);
+    }));
+
+    return function (_x9, _x10) {
+        return _ref5.apply(this, arguments);
     };
 }());
 
