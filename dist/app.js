@@ -167,7 +167,7 @@ app.post('/getTask', function () {
                             return task.finished ? temp++ : "";
                         });
 
-                        res.setHeader('Access-Control-Allow-Methods', '*').status(200).json({
+                        res.status(200).json({
                             success: true,
                             data: userTasks,
                             finished: temp * part
