@@ -221,7 +221,7 @@ app.post("/updateTask", function () {
                             error: "Task with this user ID doesn't exist"
                         });
                         for (i = 0; i < userTasks.tasks.length; i++) {
-                            if (userTasks.tasks[i].task == req.body.taskName) userTasks.tasks[i].finished = true;
+                            if (userTasks.tasks[i].task == req.body.ccc) userTasks.tasks[i].finished = true;
                         }
                         userTasks.markModified('tasks');
                         _context3.next = 9;
@@ -271,21 +271,30 @@ app.post('/addEvent', function () {
                         categoryId = req.body.categoryId;
                         event = { event: events, category: categoryId };
                         _context4.prev = 4;
-                        _context4.next = 7;
-                        return _EventModel2.default.create({ event: event, userId: userId });
+
+                        if (!(!events || !userId || !categoryId)) {
+                            _context4.next = 7;
+                            break;
+                        }
+
+                        throw new TypeError('Some of body is missing');
 
                     case 7:
+                        _context4.next = 9;
+                        return _EventModel2.default.create({ event: event, userId: userId });
+
+                    case 9:
                         Add = _context4.sent;
 
                         res.status(200).json({
                             success: true,
                             data: Add
                         });
-                        _context4.next = 14;
+                        _context4.next = 16;
                         break;
 
-                    case 11:
-                        _context4.prev = 11;
+                    case 13:
+                        _context4.prev = 13;
                         _context4.t0 = _context4["catch"](4);
 
                         res.status(400).json({
@@ -293,12 +302,12 @@ app.post('/addEvent', function () {
                             error: _context4.t0
                         });
 
-                    case 14:
+                    case 16:
                     case "end":
                         return _context4.stop();
                 }
             }
-        }, _callee4, undefined, [[4, 11]]);
+        }, _callee4, undefined, [[4, 13]]);
     }));
 
     return function (_x7, _x8) {
@@ -314,29 +323,38 @@ app.post('/getEvents', function () {
                 switch (_context5.prev = _context5.next) {
                     case 0:
                         _context5.prev = 0;
-                        _context5.next = 3;
-                        return _EventModel2.default.find({ userId: req.body.userId });
+
+                        if (req.body.userId) {
+                            _context5.next = 3;
+                            break;
+                        }
+
+                        throw new TypeError("UserID missing");
 
                     case 3:
+                        _context5.next = 5;
+                        return _EventModel2.default.find({ userId: req.body.userId });
+
+                    case 5:
                         Get = _context5.sent;
 
-                        if (Get) {
-                            _context5.next = 6;
+                        if (Get.length) {
+                            _context5.next = 8;
                             break;
                         }
 
                         throw new Error("No events found");
 
-                    case 6:
+                    case 8:
                         res.status(200).json({
                             success: true,
                             data: Get
                         });
-                        _context5.next = 12;
+                        _context5.next = 14;
                         break;
 
-                    case 9:
-                        _context5.prev = 9;
+                    case 11:
+                        _context5.prev = 11;
                         _context5.t0 = _context5["catch"](0);
 
                         res.status(400).json({
@@ -344,12 +362,12 @@ app.post('/getEvents', function () {
                             error: _context5.t0
                         });
 
-                    case 12:
+                    case 14:
                     case "end":
                         return _context5.stop();
                 }
             }
-        }, _callee5, undefined, [[0, 9]]);
+        }, _callee5, undefined, [[0, 11]]);
     }));
 
     return function (_x9, _x10) {
