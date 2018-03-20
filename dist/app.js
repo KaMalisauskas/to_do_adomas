@@ -261,7 +261,7 @@ app.post("/updateTask", function () {
 
 app.post('/addEvent', function () {
     var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(req, res) {
-        var events, userId, categoryId, event, Add;
+        var events, userId, categoryId, event, test, Add;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
             while (1) {
                 switch (_context4.prev = _context4.next) {
@@ -281,20 +281,30 @@ app.post('/addEvent', function () {
 
                     case 7:
                         _context4.next = 9;
-                        return _EventModel2.default.create({ event: event, userId: userId });
+                        return _EventModel2.default.findOne({ userId: userId, categoryId: categoryId });
 
                     case 9:
+                        test = _context4.sent;
+
+                        if (test) res.status(200).json({
+                            success: false,
+                            error: "Already submitted"
+                        });
+                        _context4.next = 13;
+                        return _EventModel2.default.create({ event: event, userId: userId });
+
+                    case 13:
                         Add = _context4.sent;
 
                         res.status(200).json({
                             success: true,
                             data: Add
                         });
-                        _context4.next = 16;
+                        _context4.next = 20;
                         break;
 
-                    case 13:
-                        _context4.prev = 13;
+                    case 17:
+                        _context4.prev = 17;
                         _context4.t0 = _context4["catch"](4);
 
                         res.status(400).json({
@@ -302,12 +312,12 @@ app.post('/addEvent', function () {
                             error: _context4.t0
                         });
 
-                    case 16:
+                    case 20:
                     case "end":
                         return _context4.stop();
                 }
             }
-        }, _callee4, undefined, [[4, 13]]);
+        }, _callee4, undefined, [[4, 17]]);
     }));
 
     return function (_x7, _x8) {
