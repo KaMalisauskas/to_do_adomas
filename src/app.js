@@ -4,6 +4,7 @@ import mongoose from "mongoose"
 import connect from "./DB/connect"
 import ToDoModel from './DB/ToDoModel'
 import EventModel from "./DB/EventModel"
+import NodeMailer from "nodemailer"
 import cors from 'cors'
 import "babel-polyfill";
 const app = express();
@@ -45,17 +46,19 @@ app.post('/addTask', async (req, res) => {
 
 app.post('/getTask', async (req, res) => {
     try{
-        const userTasks = await ToDoModel.findOne({userId: req.body.userId})
-        if(!userTasks) res.status(404).json({
+        let part
+        let temp
+        const userTasks = await ToDoModel.find({userId: req.body.userId})
+        if(!userTasks.length) res.status(404).json({
             success: false,
             error: "Task with this user ID doesn't exist"
         })
-        console.log(userTasks.tasks)
-        let len = userTasks.tasks.length
-        let temp = 0
-        let part = 100 / len
-        userTasks.tasks.map(task => (task.finished) ? temp++ : "")
-
+        for(let task of userTasks) {
+            let len = task.tasks.length
+            temp = 0
+            part = 100 / len
+            task.tasks.map(task => (task.finished) ? temp++ : "")
+        }
         res.status(200).json({
             success: true,
             data: userTasks,
@@ -89,6 +92,65 @@ app.post("/updateTask", async (req, res) => {
         res.status(400).json({
             success: false,
             error: err
+        })
+    }
+})
+
+app.post('/updateTaskChild', async (req, res) => {
+    try {
+        const TODO = await ToDoModel.findOne({name: req.body.tasksName})
+        const LEN = TODO.tasks.length
+        TODO.tasks[LEN] = {"task": req.body.newTask, finished: false}
+        TODO.markModified('tasks')
+        const USERTASKS = await TODO.save()
+        res.status(200).json({
+            success: true,
+            data: USERTASKS
+        })
+    } catch(err) {
+        res.status(400).json({
+            success: false,
+            error: String(err)
+        })
+    }
+})
+
+app.delete('/deleteTaskChild', async (req, res) => {
+    try{
+        const TODO = await ToDoModel.findOne({name: req.body.tasksName})
+        TODO.tasks.map(data => {
+            if(data.task === req.body.task) {
+                TODO.tasks.splice(TODO.tasks.indexOf(data), 1)
+            }
+        })
+        TODO.markModified('tasks')
+        const USERTASKS = await TODO.save()
+        res.status(200).json({
+            success: true,
+            data: USERTASKS
+        })
+
+    } catch(err) {
+        res.status(400).json({
+            success: false,
+            error: String(err)
+        })
+    }
+})
+
+app.delete('/deleteTask', async (req, res) => {
+    try{
+        const REMOVE = await ToDoModel.findOneAndRemove({name: req.body.tasksName})
+        if(!REMOVE) throw new Error('Nothing to remove')
+        res.status(200).json({
+            success: true,
+            data: 'Removal was successful'
+        })
+
+    } catch(err) {
+        res.status(400).json({
+            success: false,
+            error: String(err)
         })
     }
 })
@@ -132,6 +194,52 @@ app.post('/getEvents', async(req, res) => {
             success: false,
             error: err
         })
+    }
+})
+
+app.post('/form', async (req, res) => {
+    try{
+        const BODY = req.body
+
+        if(!BODY) throw new Error("Nothing to send")
+
+        const confEmail = process.env.email
+        const password = process.env.emailPassword
+
+        let htmlString = ''
+
+        for(let key in BODY) {
+            htmlString += `<p>${key} : ${BODY[key]} </p>`
+        }
+
+        const transporter = NodeMailer.createTransport({
+            service: "Gmail",
+            secure: false,
+            port: 25,
+            auth: {
+                user: confEmail,
+                pass: password
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        })
+
+        const HelperOptions = {
+            from:`"Karolis - Blogger" <`,
+            to: 'karolis.malisauskas@gmail.com',
+            subject: 'Nauja uzklausa',
+            text: "Jus gavote nauja užklausa!",
+            html: `Jūs gavot nauja užklausą 
+            ${htmlString}`
+        }
+        await transporter.sendMail(HelperOptions)
+        res.status(200).json({
+            success: true,
+            data: 'Email sent successfully'
+        })
+    } catch(error) {
+        res.status(400).json({error: String(error)})
     }
 })
 
