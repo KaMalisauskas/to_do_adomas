@@ -46,24 +46,16 @@ app.post('/addTask', async (req, res) => {
 
 app.post('/getTask', async (req, res) => {
     try{
-        let part
-        let temp
+
         const userTasks = await ToDoModel.find({userId: req.body.userId})
-        if(!userTasks.length) res.status(404).json({
-            success: false,
-            error: "Task with this user ID doesn't exist"
-        })
-        for(let task of userTasks) {
-            let len = task.tasks.length
-            temp = 0
-            part = 100 / len
-            task.tasks.map(task => (task.finished) ? temp++ : "")
-        }
+
+        if(!userTasks.length) throw new Error('Task with this user ID doesn\'t exist')
+
         res.status(200).json({
             success: true,
             data: userTasks,
-            finished: temp * part
         })
+
     }catch(err) {
         res.status(400).json({
             success: false,
@@ -117,14 +109,25 @@ app.post('/updateTaskChild', async (req, res) => {
 
 app.delete('/deleteTaskChild', async (req, res) => {
     try{
-        const TODO = await ToDoModel.findOne({name: req.body.tasksName})
+        const TODO = await ToDoModel.findOne({userId: req.body.userId, name: req.body.tasksName})
+
+        if(!TODO) throw new Error('There is nothing to delete by this user or tasksname')
+
+        let deleted = false
+
         TODO.tasks.map(data => {
             if(data.task === req.body.task) {
+                deleted = true
                 TODO.tasks.splice(TODO.tasks.indexOf(data), 1)
             }
         })
+
+        if(!deleted) throw new Error('There is nothing to delete')
+
         TODO.markModified('tasks')
+
         const USERTASKS = await TODO.save()
+
         res.status(200).json({
             success: true,
             data: USERTASKS
@@ -140,8 +143,10 @@ app.delete('/deleteTaskChild', async (req, res) => {
 
 app.delete('/deleteTask', async (req, res) => {
     try{
-        const REMOVE = await ToDoModel.findOneAndRemove({name: req.body.tasksName})
+        const REMOVE = await ToDoModel.findOneAndRemove({userId: req.body.userId, name: req.body.tasksName})
+
         if(!REMOVE) throw new Error('Nothing to remove')
+
         res.status(200).json({
             success: true,
             data: 'Removal was successful'
@@ -183,12 +188,16 @@ app.post('/addEvent', async (req, res) => {
 app.post('/getEvents', async(req, res) => {
     try{
         if(!req.body.userId) throw new TypeError("UserID missing")
+
         let Get = await EventModel.find({userId: req.body.userId})
+
         if(!Get.length) throw new Error("No events found")
+
         res.status(200).json({
             success: true,
             data: Get
         })
+
     }catch(err) {
         res.status(400).json({
             success: false,
